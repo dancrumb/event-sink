@@ -1,0 +1,82 @@
+{
+  "scriptId": "16",
+  "url": "ext:deno_web/02_timers.js",
+  "functions": [
+    {
+      "functionName": "handleTimerMacrotask",
+      "ranges": [{ "startOffset": 1352, "endOffset": 1639, "count": 88 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "initializeTimer",
+      "ranges": [
+        { "startOffset": 2199, "endOffset": 5581, "count": 30 },
+        { "startOffset": 2550, "endOffset": 2707, "count": 0 },
+        { "startOffset": 3532, "endOffset": 3544, "count": 0 },
+        { "startOffset": 3573, "endOffset": 3587, "count": 0 },
+        { "startOffset": 3589, "endOffset": 3601, "count": 0 }
+      ],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "action",
+      "ranges": [
+        { "startOffset": 3690, "endOffset": 5068, "count": 30 },
+        { "startOffset": 3974, "endOffset": 3999, "count": 0 },
+        { "startOffset": 4229, "endOffset": 4288, "count": 0 },
+        { "startOffset": 4296, "endOffset": 4343, "count": 0 },
+        { "startOffset": 4363, "endOffset": 4890, "count": 0 }
+      ],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "",
+      "ranges": [{ "startOffset": 5489, "endOffset": 5531, "count": 30 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "runAfterTimeout",
+      "ranges": [
+        { "startOffset": 6245, "endOffset": 8438, "count": 30 },
+        { "startOffset": 6509, "endOffset": 6553, "count": 0 },
+        { "startOffset": 6899, "endOffset": 6995, "count": 0 }
+      ],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "",
+      "ranges": [
+        { "startOffset": 7051, "endOffset": 8430, "count": 30 },
+        { "startOffset": 7090, "endOffset": 7199, "count": 0 },
+        { "startOffset": 8285, "endOffset": 8363, "count": 0 }
+      ],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "removeFromScheduledTimers",
+      "ranges": [
+        { "startOffset": 8480, "endOffset": 8880, "count": 30 },
+        { "startOffset": 8557, "endOffset": 8602, "count": 0 },
+        { "startOffset": 8733, "endOffset": 8778, "count": 0 }
+      ],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "checkThis",
+      "ranges": [
+        { "startOffset": 8962, "endOffset": 9121, "count": 30 },
+        { "startOffset": 9040, "endOffset": 9065, "count": 0 },
+        { "startOffset": 9067, "endOffset": 9119, "count": 0 }
+      ],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "setTimeout",
+      "ranges": [
+        { "startOffset": 9123, "endOffset": 9399, "count": 30 },
+        { "startOffset": 9234, "endOffset": 9293, "count": 0 }
+      ],
+      "isBlockCoverage": true
+    }
+  ]
+}

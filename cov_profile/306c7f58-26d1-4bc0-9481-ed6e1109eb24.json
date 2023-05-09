@@ -1,0 +1,11 @@
+{
+  "scriptId": "296",
+  "url": "[ext:cli/tools/test.rs:960:30]",
+  "functions": [
+    {
+      "functionName": "",
+      "ranges": [{ "startOffset": 0, "endOffset": 32, "count": 1 }],
+      "isBlockCoverage": true
+    }
+  ]
+}
