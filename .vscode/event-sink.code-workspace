@@ -1,10 +1,15 @@
 {
   "folders": [
     {
-      "path": "."
+      "name": "event-sink",
+      "path": ".."
     }
   ],
   "settings": {
-    "deno.enable": true
+    "deno.enable": true,
+    "deno.codeLens.implementations": true,
+    "deno.lint": true,
+    "deno.codeLens.references": true,
+    "deno.inlayHints.parameterNames.enabled": "literals"
   }
 }

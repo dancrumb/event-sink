@@ -112,9 +112,9 @@ export class EventSink {
     return this.response;
   }
 
-  reset() {
+  async reset() {
     this.response = null;
-    this.close();
+    await this.close();
     this.setupStreams();
   }
 }

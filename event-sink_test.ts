@@ -1,7 +1,11 @@
-import { assertEquals } from "https://deno.land/std@0.184.0/testing/asserts.ts";
+import {
+  assertEquals,
+  assertExists,
+} from "https://deno.land/std@0.184.0/testing/asserts.ts";
 import { EventSink } from "./event-sink.ts";
+import { CircularBuffer } from "./circular-buffer.ts";
 
-Deno.test("EventSink", async (t) => {
+Deno.test("EventSink: basic", async () => {
   const sink = new EventSink();
 
   const response = sink.getResponse();
@@ -14,11 +18,7 @@ Deno.test("EventSink", async (t) => {
     content: "testing",
   });
 
-  sink.dispatchEvent({
-    name: "test2",
-    id: "2",
-    content: "testing2",
-  });
+  sink.dispatchEvent("test2", "testing2", "2");
   sink.dispatchEvent({
     name: "comments",
     id: "3",
@@ -42,4 +42,48 @@ Deno.test("EventSink", async (t) => {
 
   result = await reader.read();
   assertEquals(result.done, true);
+});
+
+Deno.test("EventSink: repeat getResponse", () => {
+  const sink = new EventSink();
+
+  const response1 = sink.getResponse();
+  const response2 = sink.getResponse();
+
+  assertEquals(response1, response2);
+});
+
+Deno.test("EventSink: reset", async () => {
+  const sink = new EventSink();
+
+  const response1 = sink.getResponse();
+  await sink.reset();
+  assertExists(response1);
+});
+
+Deno.test("EventSink: with history", async () => {
+  const history = new CircularBuffer();
+  const sink = new EventSink(history);
+  const response = sink.getResponse();
+  response.body?.pipeTo(new WritableStream({}));
+
+  assertEquals(history.length, 0);
+
+  await sink.dispatchEvent({
+    name: "test",
+    content: "testing",
+  });
+  assertEquals(history.length, 1);
+
+  await sink.dispatchEvent({
+    name: "test",
+    content: "testing",
+  });
+  await sink.dispatchEvent({
+    name: "test",
+    content: "testing",
+  });
+  assertEquals(history.length, 3);
+
+  await sink.close();
 });
