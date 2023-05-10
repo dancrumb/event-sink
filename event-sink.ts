@@ -39,7 +39,7 @@ export class EventSink {
   }
 
   private async sendEvent(event: SSEEvent) {
-    const { name, content, id, comments = [] } = event;
+    const { name = "message", content, id, comments = [] } = event;
     const eventBuilder: string[] = [];
     eventBuilder.push(`event: ${name}`);
     if (id !== undefined) {
@@ -52,32 +52,32 @@ export class EventSink {
 
   dispatchEvent(event: SSEEvent): Promise<void>;
   dispatchEvent(
-    eventName: string,
     eventContent: string,
+    eventName: string,
     id?: string,
     comments?: string[]
   ): Promise<void>;
   dispatchEvent(
-    eventOrName: string | SSEEvent,
-    eventContent?: string,
+    contentOrEvent: string | SSEEvent,
+    eventName?: string,
     id?: string,
     comments?: string[]
   ): Promise<void> {
     logger().debug("dispatchEvent", {
-      eventOrName,
-      eventContent,
+      contentOrEvent,
+      eventName,
       id,
       comments,
     });
     const event =
-      typeof eventOrName === "string"
+      typeof contentOrEvent === "string"
         ? {
-            name: eventOrName,
-            content: eventContent ?? "",
+            content: contentOrEvent ?? "",
+            name: eventName ?? "message",
             id,
             comments,
           }
-        : eventOrName;
+        : contentOrEvent;
 
     if (this.history) {
       this.history.push(event);

@@ -18,12 +18,16 @@ Deno.test("EventSink: basic", async () => {
     content: "testing",
   });
 
-  sink.dispatchEvent("test2", "testing2", "2");
+  sink.dispatchEvent("testing2", "test2", "2");
   sink.dispatchEvent({
     name: "comments",
     id: "3",
     content: "comment content",
     comments: ["hello"],
+  });
+
+  sink.dispatchEvent({
+    content: "minimal",
   });
 
   let result: Awaited<ReturnType<(typeof reader)["read"]>>;
@@ -37,6 +41,8 @@ Deno.test("EventSink: basic", async () => {
     result.value,
     "event: comments\nid: 3\n: hello\ndata: comment content\n\n"
   );
+  result = await reader.read();
+  assertEquals(result.value, "event: message\ndata: minimal\n\n");
 
   await sink.close();
 
