@@ -7,11 +7,10 @@ function logger() {
 }
 
 type SinkEvents = {
-	close: [CloseEvent];
-	open: [string];
+  close: [CloseEvent];
+  open: [string];
   error: [CloseEvent];
 };
-  
 
 /**
  * This is an implementation of the [Server-sent Events API](https://html.spec.whatwg.org/multipage/server-sent-events.html#server-sent-events)
@@ -20,7 +19,7 @@ type SinkEvents = {
  *
  * Events are pushed onto the EventHistory object.
  */
-export class EventSink extends EventEmitter<SinkEvents>{
+export class EventSink extends EventEmitter<SinkEvents> {
   private eventStream!: WritableStreamDefaultWriter<string>;
   private responseStream!: ReadableStream<Uint8Array>;
   private encoder = new TextEncoderStream();
@@ -36,29 +35,27 @@ export class EventSink extends EventEmitter<SinkEvents>{
    * @param history
    */
   constructor(history?: EventHistory<SSEEvent>) {
-	super();
+    super();
     this.setupStreams();
     this.history = history;
   }
 
   private setupStreams() {
-    
     this.responseStream = new ReadableStream<Uint8Array>({
-        start: async (controller) => {
-          this.controller = controller;
-          for await (const chunk of this.encoder.readable) {
-            controller.enqueue(chunk);
-          }
-        },
-        cancel: (error) => {
-          // connections closing are considered "normal" for SSE events and just
-          // mean the far side has closed.
-          this.close(error);
-        },
+      start: async (controller) => {
+        this.controller = controller;
+        for await (const chunk of this.encoder.readable) {
+          controller.enqueue(chunk);
+        }
+      },
+      cancel: (error) => {
+        // connections closing are considered "normal" for SSE events and just
+        // mean the far side has closed.
+        this.close(error);
+      },
     });
 
     this.eventStream = this.encoder.writable.getWriter();
-
   }
 
   #error(error: any) {
@@ -66,7 +63,7 @@ export class EventSink extends EventEmitter<SinkEvents>{
     const errorEvent = new ErrorEvent("error", { error });
     this.dispatchEvent(errorEvent as unknown as SSEEvent);
   }
-  
+
   private async sendEvent(event: SSEEvent) {
     const { name = "message", content, id, comments = [] } = event;
     const eventBuilder: string[] = [];
@@ -84,13 +81,13 @@ export class EventSink extends EventEmitter<SinkEvents>{
     eventContent: string,
     eventName: string,
     id?: string,
-    comments?: string[]
+    comments?: string[],
   ): Promise<void>;
   dispatchEvent(
     contentOrEvent: string | SSEEvent,
     eventName?: string,
     id?: string,
-    comments?: string[]
+    comments?: string[],
   ): Promise<void> {
     logger().debug("dispatchEvent", {
       contentOrEvent,
@@ -98,22 +95,20 @@ export class EventSink extends EventEmitter<SinkEvents>{
       id,
       comments,
     });
-    const event =
-      typeof contentOrEvent === "string"
-        ? {
-            content: contentOrEvent ?? "",
-            name: eventName ?? "message",
-            id,
-            comments,
-          }
-        : contentOrEvent;
+    const event = typeof contentOrEvent === "string"
+      ? {
+        content: contentOrEvent ?? "",
+        name: eventName ?? "message",
+        id,
+        comments,
+      }
+      : contentOrEvent;
 
     if (this.history) {
       this.history.push(event);
     }
     return this.sendEvent(event);
   }
-
 
   close(reason?: string): Promise<void> {
     logger().debug("close", {
@@ -138,7 +133,7 @@ export class EventSink extends EventEmitter<SinkEvents>{
       });
     } else if (headers !== undefined) {
       logger().warn(
-        "Headers were provided to EventSink.getResponse, but the Response object has already been created"
+        "Headers were provided to EventSink.getResponse, but the Response object has already been created",
       );
     }
     return this.response;
