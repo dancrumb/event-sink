@@ -1,10 +1,17 @@
-import { getLogger } from "./deps.ts";
+import { EventEmitter, getLogger } from "./deps.ts";
 import { EventHistory } from "./event-history.ts";
 import { SSEEvent } from "./sse-event.ts";
 
 function logger() {
   return getLogger("event-sink:circular-buffer");
 }
+
+type SinkEvents = {
+	close: [CloseEvent];
+	open: [string];
+  error: [CloseEvent];
+};
+  
 
 /**
  * This is an implementation of the [Server-sent Events API](https://html.spec.whatwg.org/multipage/server-sent-events.html#server-sent-events)
@@ -13,13 +20,13 @@ function logger() {
  *
  * Events are pushed onto the EventHistory object.
  */
-export class EventSink {
+export class EventSink extends EventEmitter<SinkEvents>{
   private eventStream!: WritableStreamDefaultWriter<string>;
   private responseStream!: ReadableStream<Uint8Array>;
   private encoder = new TextEncoderStream();
   private response: Response | null = null;
   private history?: EventHistory<SSEEvent>;
-
+  private controller: ReadableStreamDefaultController<Uint8Array> | null = null;
   /**
    * An EventSink can be passed an EventHistory object to record previously sent events.
    * These can be used to replaying events should a reconnect occur with `Last-Event-ID` set.
@@ -29,15 +36,37 @@ export class EventSink {
    * @param history
    */
   constructor(history?: EventHistory<SSEEvent>) {
+	super();
     this.setupStreams();
     this.history = history;
   }
 
   private setupStreams() {
-    this.responseStream = this.encoder.readable;
+    
+    this.responseStream = new ReadableStream<Uint8Array>({
+        start: async (controller) => {
+          this.controller = controller;
+          for await (const chunk of this.encoder.readable) {
+            controller.enqueue(chunk);
+          }
+        },
+        cancel: (error) => {
+          // connections closing are considered "normal" for SSE events and just
+          // mean the far side has closed.
+          this.close(error);
+        },
+    });
+
     this.eventStream = this.encoder.writable.getWriter();
+
   }
 
+  #error(error: any) {
+    this.emit("error", new CloseEvent("error"));
+    const errorEvent = new ErrorEvent("error", { error });
+    this.dispatchEvent(errorEvent as unknown as SSEEvent);
+  }
+  
   private async sendEvent(event: SSEEvent) {
     const { name = "message", content, id, comments = [] } = event;
     const eventBuilder: string[] = [];
@@ -85,13 +114,16 @@ export class EventSink {
     return this.sendEvent(event);
   }
 
-  close(): Promise<void> {
+
+  close(reason?: string): Promise<void> {
     logger().debug("close", {
       eventStreamClosed: this.eventStream.closed,
       encoderReadableLocked: this.encoder.readable.locked,
       encoderWritableLocked: this.encoder.writable.locked,
     });
     this.eventStream.releaseLock();
+    this.emit("close", new CloseEvent(reason ?? "connection closed"));
+
     return this.encoder.writable.close();
   }
 
@@ -105,7 +137,7 @@ export class EventSink {
         headers,
       });
     } else if (headers !== undefined) {
-      logger().warning(
+      logger().warn(
         "Headers were provided to EventSink.getResponse, but the Response object has already been created"
       );
     }
@@ -115,6 +147,7 @@ export class EventSink {
   async reset() {
     this.response = null;
     await this.close();
+
     this.setupStreams();
   }
 }

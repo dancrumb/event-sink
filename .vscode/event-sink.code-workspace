@@ -10,6 +10,5 @@
     "deno.codeLens.implementations": true,
     "deno.lint": true,
     "deno.codeLens.references": true,
-    "deno.inlayHints.parameterNames.enabled": "literals"
   }
 }
