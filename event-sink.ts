@@ -20,6 +20,8 @@ type SinkEvents = {
  * Events are pushed onto the EventHistory object.
  */
 export class EventSink extends EventEmitter<SinkEvents> {
+  #closed = false;
+  #ready = false;
   private eventStream!: WritableStreamDefaultWriter<string>;
   private responseStream!: ReadableStream<Uint8Array>;
   private encoder = new TextEncoderStream();
@@ -43,6 +45,8 @@ export class EventSink extends EventEmitter<SinkEvents> {
   private setupStreams() {
     this.responseStream = new ReadableStream<Uint8Array>({
       start: async (controller) => {
+        this.#closed = false;
+        this.#ready = true;
         this.controller = controller;
         for await (const chunk of this.encoder.readable) {
           controller.enqueue(chunk);
@@ -111,17 +115,20 @@ export class EventSink extends EventEmitter<SinkEvents> {
   }
 
   close(reason?: string): Promise<void> {
+    this.#ready = false;
     logger().debug("close", {
       eventStreamClosed: this.eventStream.closed,
       encoderReadableLocked: this.encoder.readable.locked,
       encoderWritableLocked: this.encoder.writable.locked,
     });
     this.eventStream.releaseLock();
+    this.#closed = true;
     this.emit("close", new CloseEvent(reason ?? "connection closed"));
-
     return this.encoder.writable.close();
   }
-
+  get closed() { 
+    return this.#closed;
+  }
   getResponse(headers?: Headers): Response {
     if (this.response === null) {
       headers = headers ?? new Headers();
@@ -142,7 +149,6 @@ export class EventSink extends EventEmitter<SinkEvents> {
   async reset() {
     this.response = null;
     await this.close();
-
     this.setupStreams();
   }
 }
