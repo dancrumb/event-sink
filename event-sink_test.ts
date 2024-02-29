@@ -39,7 +39,7 @@ Deno.test("EventSink: basic", async () => {
   result = await reader.read();
   assertEquals(
     result.value,
-    "event: comments\nid: 3\n: hello\ndata: comment content\n\n"
+    "event: comments\nid: 3\n: hello\ndata: comment content\n\n",
   );
   result = await reader.read();
   assertEquals(result.value, "event: message\ndata: minimal\n\n");

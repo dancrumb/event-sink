@@ -145,7 +145,7 @@ Deno.test("CircularBuffer: findIndex", async (tt) => {
     const buffer = new CircularBuffer(0);
     assertEquals(
       buffer.findIndex((x) => x === 1),
-      -1
+      -1,
     );
   });
   await tt.step("one length buffer", () => {
@@ -153,11 +153,11 @@ Deno.test("CircularBuffer: findIndex", async (tt) => {
     buffer.push("a");
     assertEquals(
       buffer.findIndex((x) => x === "a"),
-      0
+      0,
     );
     assertEquals(
       buffer.findIndex((x) => x === "b"),
-      -1
+      -1,
     );
   });
   await tt.step("two length buffer", () => {
@@ -166,11 +166,11 @@ Deno.test("CircularBuffer: findIndex", async (tt) => {
     buffer.push("b");
     assertEquals(
       buffer.findIndex((x) => x === "a"),
-      0
+      0,
     );
     assertEquals(
       buffer.findIndex((x) => x === "b"),
-      1
+      1,
     );
   });
 });
@@ -198,7 +198,7 @@ Deno.test("CircularBuffer: complex find 1", async () => {
   assertEquals(
     fifo.findIndex((x) => x === 2),
     0,
-    "find with offset head"
+    "find with offset head",
   );
 });
 Deno.test("CircularBuffer: complex find", async () => {
@@ -210,6 +210,6 @@ Deno.test("CircularBuffer: complex find", async () => {
   assertEquals(
     fifo.findIndex((x) => x === 2),
     2,
-    "find with offset head"
+    "find with offset head",
   );
 });

@@ -95,7 +95,7 @@ export class CircularBuffer<R = any> implements EventHistory<R> {
   private incrementLength() {
     this.bufferLength = Math.min(
       this.bufferLength + 1,
-      this.internalBuffer.length
+      this.internalBuffer.length,
     );
     return this.bufferLength;
   }
@@ -121,7 +121,6 @@ export class CircularBuffer<R = any> implements EventHistory<R> {
 
   /**
    * Add a single element to the beginning of the buffer
-   *
    */
   unshift(value: R) {
     logger().debug("unshift", {
@@ -158,7 +157,6 @@ export class CircularBuffer<R = any> implements EventHistory<R> {
 
   /**
    * Add a single element to the end of the buffer
-   *
    */
   push(value: R) {
     logger().debug("push", {
@@ -197,7 +195,7 @@ export class CircularBuffer<R = any> implements EventHistory<R> {
    * Returns the buffer index of the first entry in the buffer that matches the predicate
    */
   findIndex(
-    predicate: (value: R, index: number, buff: R[]) => boolean
+    predicate: (value: R, index: number, buff: R[]) => boolean,
   ): number {
     let bufferIndex = this.internalBuffer
       .slice(this.bufferHead)
