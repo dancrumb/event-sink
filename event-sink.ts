@@ -84,13 +84,13 @@ export class EventSink extends EventEmitter<SinkEvents>{
     eventContent: string,
     eventName: string,
     id?: string,
-    comments?: string[]
+    comments?: string[],
   ): Promise<void>;
   dispatchEvent(
     contentOrEvent: string | SSEEvent,
     eventName?: string,
     id?: string,
-    comments?: string[]
+    comments?: string[],
   ): Promise<void> {
     logger().debug("dispatchEvent", {
       contentOrEvent,
@@ -98,15 +98,14 @@ export class EventSink extends EventEmitter<SinkEvents>{
       id,
       comments,
     });
-    const event =
-      typeof contentOrEvent === "string"
-        ? {
-            content: contentOrEvent ?? "",
-            name: eventName ?? "message",
-            id,
-            comments,
-          }
-        : contentOrEvent;
+    const event = typeof contentOrEvent === "string"
+      ? {
+        content: contentOrEvent ?? "",
+        name: eventName ?? "message",
+        id,
+        comments,
+      }
+      : contentOrEvent;
 
     if (this.history) {
       this.history.push(event);
