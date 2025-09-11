@@ -1,4 +1,3 @@
-import console from "console";
 import { type EventHistory } from "./event-history.js";
 import { type SSEEvent } from "./sse-event.js";
 
