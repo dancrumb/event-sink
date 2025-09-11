@@ -20,7 +20,7 @@ await sink.dispatchEvent({
 // Can pass in event name, content (and optional ID)
 await sink.dispatchEvent("test2", "testing2", "2");
 
-await sink.close;
+await sink.close();
 ```
 
 ### History

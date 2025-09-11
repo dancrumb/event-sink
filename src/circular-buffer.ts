@@ -1,9 +1,6 @@
-import { getLogger } from "./deps.ts";
-import { EventHistory } from "./event-history.ts";
+import console from "console";
+import { type EventHistory } from "./event-history.js";
 
-function logger() {
-  return getLogger("event-sink:circular-buffer");
-}
 /**
  * A circular buffer can have items constantly added and removed without exceeding a maximum size.
  *
@@ -51,12 +48,6 @@ export class CircularBuffer<R = any> implements EventHistory<R> {
   }
 
   private get(index: number): R | undefined {
-    logger().debug("get", {
-      index,
-      buf: this.internalBuffer,
-      head: this.bufferHead,
-      len: this.bufferLength,
-    });
     if (index >= this.bufferLength) {
       return undefined;
     }
@@ -65,12 +56,6 @@ export class CircularBuffer<R = any> implements EventHistory<R> {
   }
 
   private set(index: number, value: R): void {
-    logger().debug("set", {
-      index,
-      buf: this.internalBuffer,
-      head: this.bufferHead,
-      len: this.bufferLength,
-    });
     if (index > this.bufferLength) {
       this.bufferLength = index;
     }
@@ -95,7 +80,7 @@ export class CircularBuffer<R = any> implements EventHistory<R> {
   private incrementLength() {
     this.bufferLength = Math.min(
       this.bufferLength + 1,
-      this.internalBuffer.length,
+      this.internalBuffer.length
     );
     return this.bufferLength;
   }
@@ -123,12 +108,6 @@ export class CircularBuffer<R = any> implements EventHistory<R> {
    * Add a single element to the beginning of the buffer
    */
   unshift(value: R) {
-    logger().debug("unshift", {
-      value,
-      buf: this.internalBuffer,
-      head: this.bufferHead,
-      len: this.bufferLength,
-    });
     this.moveBufferHeadDown();
     this.set(0, value);
     this.incrementLength();
@@ -140,11 +119,6 @@ export class CircularBuffer<R = any> implements EventHistory<R> {
    * Remove a single element to the beginning of the buffer
    */
   shift(): R | undefined {
-    logger().debug("shift", {
-      buf: this.internalBuffer,
-      head: this.bufferHead,
-      len: this.bufferLength,
-    });
     if (this.bufferLength === 0) {
       return undefined;
     }
@@ -159,12 +133,6 @@ export class CircularBuffer<R = any> implements EventHistory<R> {
    * Add a single element to the end of the buffer
    */
   push(value: R) {
-    logger().debug("push", {
-      value,
-      buf: this.internalBuffer,
-      head: this.bufferHead,
-      len: this.bufferLength,
-    });
     if (this.isFull()) {
       this.moveBufferHeadUp();
     }
@@ -176,11 +144,6 @@ export class CircularBuffer<R = any> implements EventHistory<R> {
    * Remove a single element from the end of the buffer
    */
   pop(): R | undefined {
-    logger().debug("pop", {
-      buf: this.internalBuffer,
-      head: this.bufferHead,
-      len: this.bufferLength,
-    });
     if (this.bufferLength === 0) {
       return undefined;
     }
@@ -195,7 +158,7 @@ export class CircularBuffer<R = any> implements EventHistory<R> {
    * Returns the buffer index of the first entry in the buffer that matches the predicate
    */
   findIndex(
-    predicate: (value: R, index: number, buff: R[]) => boolean,
+    predicate: (value: R, index: number, buff: R[]) => boolean
   ): number {
     let bufferIndex = this.internalBuffer
       .slice(this.bufferHead)

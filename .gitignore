@@ -1,2 +1,5 @@
-cov_profile*
+
 .vscode/
+node_modules/
+coverage/
+dist/

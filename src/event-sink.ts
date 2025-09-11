@@ -1,10 +1,6 @@
-import { getLogger } from "./deps.ts";
-import { EventHistory } from "./event-history.ts";
-import { SSEEvent } from "./sse-event.ts";
-
-function logger() {
-  return getLogger("event-sink:circular-buffer");
-}
+import console from "console";
+import { type EventHistory } from "./event-history.js";
+import { type SSEEvent } from "./sse-event.js";
 
 /**
  * This is an implementation of the [Server-sent Events API](https://html.spec.whatwg.org/multipage/server-sent-events.html#server-sent-events)
@@ -50,33 +46,56 @@ export class EventSink {
     return this.eventStream.write(`${eventBuilder.join("\n")}\n\n`);
   }
 
+  /**
+   * Replay events in the history since the provided event ID
+   *
+   * @param lastEventId The ID of the last event received by the client; generally this will come from the Last-Event-ID header
+   */
+  async replaySince(lastEventId: string): Promise<void> {
+    if (!this.history) {
+      console.warn(
+        "No history object provided to EventSink, cannot replay events"
+      );
+      return Promise.resolve();
+    }
+    if (!this.response) {
+      console.warn("Response object not yet created, cannot replay events");
+      return Promise.resolve();
+    }
+    let foundLastId = false;
+    for (let i = 0; i < this.history.length; i++) {
+      const event = this.history[i];
+      if (event.id === lastEventId) {
+        foundLastId = true;
+      }
+      if (foundLastId) {
+        await this.sendEvent(event);
+      }
+    }
+  }
+
   dispatchEvent(event: SSEEvent): Promise<void>;
   dispatchEvent(
     eventContent: string,
     eventName: string,
     id?: string,
-    comments?: string[],
+    comments?: string[]
   ): Promise<void>;
   dispatchEvent(
     contentOrEvent: string | SSEEvent,
     eventName?: string,
     id?: string,
-    comments?: string[],
+    comments?: string[]
   ): Promise<void> {
-    logger().debug("dispatchEvent", {
-      contentOrEvent,
-      eventName,
-      id,
-      comments,
-    });
-    const event = typeof contentOrEvent === "string"
-      ? {
-        content: contentOrEvent ?? "",
-        name: eventName ?? "message",
-        id,
-        comments,
-      }
-      : contentOrEvent;
+    const event =
+      typeof contentOrEvent === "string"
+        ? {
+            content: contentOrEvent ?? "",
+            name: eventName ?? "message",
+            id,
+            comments,
+          }
+        : contentOrEvent;
 
     if (this.history) {
       this.history.push(event);
@@ -85,11 +104,6 @@ export class EventSink {
   }
 
   close(): Promise<void> {
-    logger().debug("close", {
-      eventStreamClosed: this.eventStream.closed,
-      encoderReadableLocked: this.encoder.readable.locked,
-      encoderWritableLocked: this.encoder.writable.locked,
-    });
     this.eventStream.releaseLock();
     return this.encoder.writable.close();
   }
@@ -99,14 +113,17 @@ export class EventSink {
       headers = headers ?? new Headers();
       headers.set("content-type", "text/event-stream");
       headers.set("cache-control", "no-store");
+      headers.set("x-accel-buffering", "no"); // for nginx
 
       this.response = new Response(this.responseStream, {
         headers,
       });
     } else if (headers !== undefined) {
-      logger().warning(
-        "Headers were provided to EventSink.getResponse, but the Response object has already been created",
+      /* v8 ignore start */
+      console.warn(
+        "Headers were provided to EventSink.getResponse, but the Response object has already been created"
       );
+      /* v8 ignore end */
     }
     return this.response;
   }
