@@ -1,0 +1,6 @@
+src/
+node_modules/
+coverage/
+.vscode/
+__tests__/
+.github/

@@ -4,8 +4,10 @@
   "description": "",
   "private": false,
   "exports": {
-    ".": "./dist/event-sink.js",
-    "./package.json": "./package.json"
+    ".": {
+      "import": "./dist/event-sink.js",
+      "types": "./dist/event-sink.d.ts"
+    }
   },
   "type": "module",
   "scripts": {
