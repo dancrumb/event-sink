@@ -9,6 +9,9 @@
       "types": "./dist/event-sink.d.ts"
     }
   },
+  "engines": {
+    "node": ">=22.14.0"
+  },
   "type": "module",
   "scripts": {
     "build": "tsc",
@@ -19,9 +22,10 @@
   "repository": "https://github.com/dancrumb/event-sink",
   "license": "MIT",
   "devDependencies": {
-    "@types/node": "^24.3.1",
+    "@types/node": "22",
     "@vitest/coverage-v8": "3.2.4",
     "typescript": "^5.9.2",
     "vitest": "^3.2.4"
-  }
+  },
+  "packageManager": "pnpm@10.16.1+sha512.0e155aa2629db8672b49e8475da6226aa4bdea85fdcdfdc15350874946d4f3c91faaf64cbdc4a5d1ab8002f473d5c3fcedcd197989cf0390f9badd3c04678706"
 }
